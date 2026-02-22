@@ -1,0 +1,42 @@
+{
+  "name": "cool-atv-screensaver",
+  "version": "1.0.0",
+  "description": "Self-hosted service to convert portrait photos into 4K Apple TV screensaver images with blurred backgrounds",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "NODE_ENV=development tsx watch --env-file=.env src/server.ts",
+    "dev:once": "NODE_ENV=development tsx --env-file=.env src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "apple-tv",
+    "screensaver",
+    "photo-processing",
+    "sharp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "heic-convert": "^2.1.0",
+    "multer": "^2.0.0",
+    "sharp": "^0.33.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.18.0",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.11.0",
+    "@types/uuid": "^9.0.7",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

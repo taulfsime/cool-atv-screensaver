@@ -1,0 +1,32 @@
+services:
+  cool-atv-screensaver:
+    build: .
+    container_name: cool-atv-screensaver
+    ports:
+      - "8443:8443"
+    environment:
+      # required
+      - UPLOAD_PASSWORD=${UPLOAD_PASSWORD:?UPLOAD_PASSWORD is required}
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
+      # optional with defaults
+      - PORT=${PORT:-8443}
+      - CERTS_PATH=${CERTS_PATH:-/certs}
+      - OUTPUT_PATH=${OUTPUT_PATH:-/srv/photos/processed}
+      - LOG_PATH=${LOG_PATH:-/logs}
+      - PREVIEW_DEBOUNCE_MS=${PREVIEW_DEBOUNCE_MS:-300}
+      - TEMP_STORAGE_MAX_MB=${TEMP_STORAGE_MAX_MB:-50}
+      - LOG_RETENTION_DAYS=${LOG_RETENTION_DAYS:-30}
+    volumes:
+      # TLS certificates (read-only)
+      - ./certs:/certs:ro
+      # processed images output
+      - ${OUTPUT_PATH:-/srv/photos/processed}:/srv/photos/processed
+      # logs
+      - ./logs:/logs
+    restart: unless-stopped
+    # security options
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - cool-atv-screensaver</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="container">
+    <article class="login-card">
+      <header>
+        <h1>cool-atv-screensaver</h1>
+        <p>Enter the family password to upload photos</p>
+      </header>
+
+      <form id="login-form">
+        <label for="password">
+          Password
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Enter password" 
+            required 
+            autofocus
+          >
+        </label>
+
+        <div id="error-message" class="error-message" hidden>
+          Invalid password. Please try again.
+        </div>
+
+        <button type="submit" id="submit-btn">
+          Sign In
+        </button>
+      </form>
+    </article>
+  </main>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const passwordInput = document.getElementById('password');
+    const errorMessage = document.getElementById('error-message');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      errorMessage.hidden = true;
+      submitBtn.disabled = true;
+      submitBtn.setAttribute('aria-busy', 'true');
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ password: passwordInput.value }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirect || '/';
+        } else {
+          errorMessage.hidden = false;
+          passwordInput.value = '';
+          passwordInput.focus();
+        }
+      } catch (err) {
+        errorMessage.textContent = 'Connection error. Please try again.';
+        errorMessage.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute('aria-busy');
+      }
+    });
+  </script>
+</body>
+</html>

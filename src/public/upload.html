@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload - cool-atv-screensaver</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>cool-atv-screensaver</h1>
+      <p>Upload portrait photos for your Apple TV screensaver</p>
+    </header>
+
+    <!-- upload section -->
+    <section id="upload-section">
+      <article>
+        <div 
+          id="drop-zone" 
+          class="drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop zone for image upload"
+        >
+          <div class="drop-zone-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <p>Drag and drop a portrait photo here</p>
+            <p class="secondary">or click to select a file</p>
+            <p class="secondary small">JPG, PNG, or HEIC - Max 25MB</p>
+          </div>
+          <input 
+            type="file" 
+            id="file-input" 
+            accept=".jpg,.jpeg,.png,.heic,.heif,image/jpeg,image/png,image/heic,image/heif"
+            hidden
+          >
+        </div>
+
+        <div id="upload-error" class="error-message" hidden></div>
+      </article>
+    </section>
+
+    <!-- preview section -->
+    <section id="preview-section" hidden>
+      <article>
+        <div id="preview-container" class="preview-container">
+          <img id="preview-image" alt="Preview of processed image">
+          <div id="preview-loading" class="preview-loading" hidden>
+            <div class="spinner"></div>
+            <span>Generating preview...</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <label for="blur-slider">
+            Blur Strength
+            <div class="slider-row">
+              <input 
+                type="range" 
+                id="blur-slider" 
+                min="{{MIN_BLUR}}" 
+                max="{{MAX_BLUR}}" 
+                value="{{DEFAULT_BLUR}}"
+              >
+              <output id="blur-value">{{DEFAULT_BLUR}}</output>
+            </div>
+          </label>
+
+          <label for="scale-slider">
+            Portrait Size
+            <div class="slider-row">
+              <input 
+                type="range" 
+                id="scale-slider" 
+                min="{{MIN_SCALE}}" 
+                max="{{MAX_SCALE}}" 
+                value="{{DEFAULT_SCALE}}"
+              >
+              <output id="scale-value">{{DEFAULT_SCALE}}%</output>
+            </div>
+          </label>
+        </div>
+
+        <div class="button-row">
+          <button id="save-btn" class="primary">
+            Save to Apple TV
+          </button>
+          <button id="reset-btn" class="secondary outline">
+            Start Over
+          </button>
+        </div>
+
+        <div id="preview-error" class="error-message" hidden></div>
+      </article>
+    </section>
+
+    <!-- success section -->
+    <section id="success-section" hidden>
+      <article class="success-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="success-icon">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <h2>Photo Saved!</h2>
+        <p id="success-filename"></p>
+        <p class="secondary">Your photo is ready for Apple TV</p>
+        <button id="upload-another-btn" class="primary">
+          Upload Another Photo
+        </button>
+      </article>
+    </section>
+  </main>
+
+  <!-- config injected by server -->
+  <script>
+    window.APP_CONFIG = {
+      previewDebounceMs: {{PREVIEW_DEBOUNCE_MS}},
+      defaults: {
+        blur: {{DEFAULT_BLUR}},
+        scale: {{DEFAULT_SCALE}},
+      },
+      limits: {
+        blur: { min: {{MIN_BLUR}}, max: {{MAX_BLUR}} },
+        scale: { min: {{MIN_SCALE}}, max: {{MAX_SCALE}} },
+      },
+    };
+  </script>
+  <script src="/app.js"></script>
+</body>
+</html>
