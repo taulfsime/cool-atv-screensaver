@@ -1,5 +1,7 @@
 # cool-atv-screensaver
 
+[![CI](https://github.com/taulfsime/cool-atv-screensaver/actions/workflows/ci.yml/badge.svg)](https://github.com/taulfsime/cool-atv-screensaver/actions/workflows/ci.yml)
+
 Self-hosted service that converts portrait photos into 4K Apple TV screensaver images with blurred backgrounds.
 
 ## Features
@@ -15,32 +17,54 @@ Self-hosted service that converts portrait photos into 4K Apple TV screensaver i
 
 ## Quick Start
 
-### 1. Generate certificates
+### One-line install (on your server)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/taulfsime/cool-atv-screensaver/main/scripts/install.sh | bash
+```
+
+This will:
+- Create `~/cool-atv-screensaver` directory
+- Generate self-signed certificates
+- Prompt for your family password
+- Pull and start the Docker container
+
+### Manual install
+
+#### 1. Generate certificates
 
 ```bash
 ./scripts/generate-certs.sh
 ```
 
-This creates self-signed TLS certificates and outputs a session secret.
-
-### 2. Configure environment
+#### 2. Configure environment
 
 ```bash
 cp .env.example .env
 # edit .env with your password and session secret
 ```
 
-### 3. Start the service
+#### 3. Start the service
 
 ```bash
 docker-compose up -d
 ```
 
-### 4. Access the UI
+</details>
+
+### Access the UI
 
 Open `https://your-server:8443` in your browser.
 
 Your browser will warn about the self-signed certificate — this is expected. Accept the warning to continue.
+
+### Update
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/taulfsime/cool-atv-screensaver/main/scripts/update.sh | bash
+```
+
+This pulls the latest image and restarts the service.
 
 ## Apple TV Setup
 
@@ -85,6 +109,78 @@ Log format:
 [2026-02-22 10:30:00] LOGIN_SUCCESS: Session started
 [2026-02-22 10:31:00] UPLOAD: photo.jpg (2.40MB) - validated
 [2026-02-22 10:32:00] SAVE: 2026-02-22_a1b2c3d4.jpg (blur=45, scale=80)
+```
+
+## Deployment
+
+### Option 1: Pull from GitHub Container Registry (recommended)
+
+```bash
+docker pull ghcr.io/taulfsime/cool-atv-screensaver:latest
+```
+
+### Option 2: Build locally
+
+```bash
+# build for current platform
+./scripts/build.sh
+
+# build for specific platform (e.g., x86_64 Linux server)
+./scripts/build.sh --platform linux/amd64
+
+# build for ARM64 (e.g., Raspberry Pi, ARM server)
+./scripts/build.sh --platform linux/arm64
+```
+
+### Option 3: Transfer manually
+
+```bash
+# save image to file
+docker save cool-atv-screensaver:1.0.0 | gzip > cool-atv-screensaver-1.0.0.tar.gz
+
+# copy to server
+scp cool-atv-screensaver-1.0.0.tar.gz user@server:~
+
+# on server: load image
+gunzip -c cool-atv-screensaver-1.0.0.tar.gz | docker load
+```
+
+### Run on server
+
+```bash
+# create directories
+mkdir -p ~/cool-atv-screensaver/{certs,logs,photos}
+cd ~/cool-atv-screensaver
+
+# generate certificates
+openssl req -x509 -nodes -newkey rsa:2048 \
+  -keyout certs/server.key -out certs/server.crt \
+  -days 365 -subj "/CN=localhost"
+
+# create .env file
+cat > .env << EOF
+UPLOAD_PASSWORD=your-family-password
+SESSION_SECRET=$(openssl rand -hex 32)
+EOF
+
+# create docker-compose.yml
+cat > docker-compose.yml << 'EOF'
+services:
+  cool-atv-screensaver:
+    image: ghcr.io/taulfsime/cool-atv-screensaver:latest
+    container_name: cool-atv-screensaver
+    ports:
+      - "8443:8443"
+    env_file: .env
+    volumes:
+      - ./certs:/certs:ro
+      - ./photos:/srv/photos/processed
+      - ./logs:/logs
+    restart: unless-stopped
+EOF
+
+# start
+docker-compose up -d
 ```
 
 ## Development
